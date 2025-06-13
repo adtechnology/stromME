@@ -61,9 +61,7 @@ class StromMEApp {
       highPrice: document.getElementById('high-price'),
       highTime: document.getElementById('high-time'),
       
-      // Device calculator
-      deviceSelector: document.getElementById('device-selector'),
-      deviceCost: document.getElementById('device-cost'),
+      // Device calculator - no longer needed since we show all devices
       
       // Consumption display
       consumptionPercentage: document.getElementById('consumption-percentage'),
@@ -84,13 +82,7 @@ class StromMEApp {
    * Setup event listeners
    */
   private setupEventListeners(): void {
-    // Device selector
-    this.elements.deviceSelector?.addEventListener('change', (e) => {
-      const target = e.target as HTMLSelectElement;
-      const deviceId = target.value;
-      const device = DEVICES.find(d => d.id === deviceId) || null;
-      this.updateSelectedDevice(device);
-    });
+    // No longer need device selector event listener since we show all devices
   }
 
   /**
@@ -183,9 +175,6 @@ class StromMEApp {
       this.updateConsumptionDisplay();
       this.updateDeviceCostCalculator();
       this.updateStatusDisplay();
-      
-      // Load saved device selection
-      this.loadSavedDeviceSelection();
 
     } catch (error) {
       console.error('Error loading data:', error);
@@ -333,20 +322,26 @@ class StromMEApp {
 
 
   /**
-   * Update device cost calculator
+   * Update device cost calculator for all devices
    */
   private updateDeviceCostCalculator(): void {
-    const { currentPrice, todayPrices, selectedDevice } = this.state;
+    const { currentPrice, todayPrices } = this.state;
     
-    if (!this.elements.deviceCost) return;
+    // Get all device cards
+    const deviceCards = document.querySelectorAll('.device-cost');
     
-    if (!selectedDevice) {
-      this.elements.deviceCost.textContent = '--';
+    if (!currentPrice) {
+      // Update all device cards to show no data
+      deviceCards.forEach(card => {
+        if (card instanceof HTMLElement) {
+          card.textContent = '--';
+        }
+      });
       return;
     }
 
     // Use next hour's price if available, otherwise current price
-    let priceToUse = currentPrice?.total || 0.229; // fallback to current price in Berlin
+    let priceToUse = currentPrice.total;
     
     if (todayPrices.length > 0) {
       const now = new Date();
@@ -361,8 +356,16 @@ class StromMEApp {
       }
     }
 
-    const cost = calculateDeviceCost(selectedDevice.powerKw, priceToUse, 1);
-    this.elements.deviceCost.textContent = formatCost(cost);
+    // Update each device card with its calculated cost
+    deviceCards.forEach(card => {
+      const deviceId = card.getAttribute('data-device');
+      const device = DEVICES.find(d => d.id === deviceId);
+      
+      if (device && card instanceof HTMLElement) {
+        const cost = calculateDeviceCost(device.powerKw, priceToUse, 1);
+        card.textContent = formatCost(cost);
+      }
+    });
   }
 
   /**
@@ -376,49 +379,7 @@ class StromMEApp {
     }
   }
 
-  /**
-   * Update selected device
-   */
-  private updateSelectedDevice(device: Device | null): void {
-    this.setState({ selectedDevice: device });
-    this.updateDeviceCostCalculator();
-    
-    // Save to localStorage
-    try {
-      if (device) {
-        localStorage.setItem('stromme-selected-device', device.id);
-      } else {
-        localStorage.removeItem('stromme-selected-device');
-      }
-    } catch (error) {
-      console.error('Error saving selected device:', error);
-    }
-  }
 
-  /**
-   * Load saved device selection from localStorage
-   */
-  private loadSavedDeviceSelection(): void {
-    try {
-      const savedDeviceId = localStorage.getItem('stromme-selected-device');
-      if (savedDeviceId) {
-        const device = DEVICES.find(d => d.id === savedDeviceId);
-        if (device) {
-          this.setState({ selectedDevice: device });
-          
-          // Update the select element
-          const selector = this.elements.deviceSelector as HTMLSelectElement;
-          if (selector) {
-            selector.value = savedDeviceId;
-          }
-          
-          this.updateDeviceCostCalculator();
-        }
-      }
-    } catch (error) {
-      console.error('Error loading saved device selection:', error);
-    }
-  }
 
 
   /**
