@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/stromME-1/',
+  base: '/stromME/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
