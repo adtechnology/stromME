@@ -453,9 +453,12 @@ class StromMEApp {
     
     // Show error in UI
     if (this.elements.statusMessage) {
-      this.elements.statusMessage.innerHTML = `
-        <span class="text-error">Error: ${message}</span>
-      `;
+      // Use textContent to prevent XSS attacks
+      this.elements.statusMessage.innerHTML = '<span class="text-error">Error: </span>';
+      const errorSpan = this.elements.statusMessage.querySelector('.text-error');
+      if (errorSpan) {
+        errorSpan.textContent = `Error: ${message}`;
+      }
     }
   }
 
