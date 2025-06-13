@@ -1,0 +1,417 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* High-Contrast Wall Display Theme */
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-muted: #888888;
+  
+  /* Vibrant accent colors for high contrast */
+  --accent-primary: #00ff88;    /* Bright green */
+  --accent-secondary: #ff6b35;  /* Bright orange */
+  --accent-tertiary: #00d4ff;   /* Bright cyan */
+  --accent-purple: #b347ff;     /* Bright purple */
+  
+  --border-color: #333333;
+  --success: #00ff88;
+  --warning: #ffaa00;
+  --error: #ff3366;
+  
+  /* Price level colors - high contrast */
+  --price-very-cheap: #00ff88;
+  --price-cheap: #66ff99;
+  --price-normal: #ffaa00;
+  --price-expensive: #ff6b35;
+  --price-very-expensive: #ff3366;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.4;
+  overflow-x: hidden;
+  font-weight: 600; /* Bolder text for wall display */
+}
+
+/* Container - Full width for wall display */
+.container {
+  max-width: 100vw;
+  margin: 0;
+  padding: 0.5rem;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grid Layout - Compact gaps for single screen */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+/* Grid column spans */
+.col-span-3 { grid-column: span 3 / span 3; }
+.col-span-4 { grid-column: span 4 / span 4; }
+.col-span-6 { grid-column: span 6 / span 6; }
+.col-span-8 { grid-column: span 8 / span 8; }
+
+/* Grid row utilities */
+.grid-rows-2 { grid-template-rows: repeat(2, minmax(0, 1fr)); }
+
+/* Card Styles - Compact but high contrast */
+.card {
+  background: var(--bg-secondary);
+  border: 3px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.card:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+}
+
+/* Main price card - Large but fits viewport */
+.price-main {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border: 4px solid var(--accent-primary);
+  text-align: center;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 0 40px rgba(0, 255, 136, 0.4);
+  flex: 0 0 auto;
+}
+
+/* Typography - Much larger for wall display */
+.text-xs { font-size: 1rem; }
+.text-sm { font-size: 1.25rem; }
+.text-base { font-size: 1.5rem; }
+.text-lg { font-size: 1.75rem; }
+.text-xl { font-size: 2rem; }
+.text-2xl { font-size: 2.5rem; }
+.text-3xl { font-size: 3rem; }
+.text-4xl { font-size: 4rem; }
+.text-5xl { font-size: 5rem; }
+.text-6xl { font-size: 6rem; }
+.text-7xl { font-size: 7rem; }
+.text-8xl { font-size: 8rem; }
+.text-9xl { font-size: 9rem; }
+
+/* Main price display - Large but viewport-friendly */
+.price-display {
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--accent-primary);
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  line-height: 0.9;
+  margin: 0.25rem 0;
+}
+
+/* Secondary prices */
+.price-secondary {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.font-light { font-weight: 400; }
+.font-normal { font-weight: 500; }
+.font-medium { font-weight: 600; }
+.font-semibold { font-weight: 700; }
+.font-bold { font-weight: 800; }
+.font-black { font-weight: 900; }
+
+/* High contrast colors */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent-primary); }
+.text-accent-secondary { color: var(--accent-secondary); }
+.text-accent-tertiary { color: var(--accent-tertiary); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-error { color: var(--error); }
+
+/* Price level colors - high contrast */
+.price-level-very-cheap { color: var(--price-very-cheap); text-shadow: 0 0 10px var(--price-very-cheap); }
+.price-level-cheap { color: var(--price-cheap); text-shadow: 0 0 10px var(--price-cheap); }
+.price-level-normal { color: var(--price-normal); text-shadow: 0 0 10px var(--price-normal); }
+.price-level-expensive { color: var(--price-expensive); text-shadow: 0 0 10px var(--price-expensive); }
+.price-level-very-expensive { color: var(--price-very-expensive); text-shadow: 0 0 10px var(--price-very-expensive); }
+
+/* Spacing - Larger for wall display */
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.p-4 { padding: 2rem; }
+.p-6 { padding: 3rem; }
+.p-8 { padding: 4rem; }
+
+.m-1 { margin: 0.5rem; }
+.m-2 { margin: 1rem; }
+.m-3 { margin: 1.5rem; }
+.m-4 { margin: 2rem; }
+.m-6 { margin: 3rem; }
+.m-8 { margin: 4rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+.mb-6 { margin-bottom: 3rem; }
+.mb-8 { margin-bottom: 4rem; }
+
+/* Flexbox */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.space-y-2 > * + * { margin-top: 1rem; }
+.space-y-4 > * + * { margin-top: 2rem; }
+
+/* Text Alignment */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Progress Circles - Enhanced for wall display */
+.progress-circle {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.progress-circle svg {
+  transform: rotate(-90deg);
+}
+
+.progress-circle .progress-bg {
+  fill: none;
+  stroke: var(--bg-tertiary);
+  stroke-width: 8;
+}
+
+.progress-circle .progress-fill {
+  fill: none;
+  stroke: var(--accent-primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease;
+  filter: drop-shadow(0 0 15px var(--accent-primary));
+}
+
+/* Chart Container - Compact for single screen */
+.chart-container {
+  position: relative;
+  height: 120px;
+  width: 100%;
+}
+
+/* Loading States */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+}
+
+.spinner {
+  width: 4rem;
+  height: 4rem;
+  border: 4px solid var(--bg-tertiary);
+  border-top: 4px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.error {
+  background: rgba(255, 51, 102, 0.2);
+  border: 3px solid var(--error);
+  color: var(--error);
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Status badges - High contrast */
+.status-badge {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.status-cheap {
+  background: var(--price-very-cheap);
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.status-normal {
+  background: var(--price-normal);
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px rgba(255, 170, 0, 0.5);
+}
+
+.status-expensive {
+  background: var(--price-expensive);
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+}
+
+/* Device Icons - Larger */
+.device-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design for Wall Display */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .price-display {
+    font-size: 5rem;
+  }
+  
+  .price-secondary {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .price-display {
+    font-size: 10rem;
+  }
+  
+  .price-secondary {
+    font-size: 4rem;
+  }
+}
+
+/* Device Selector Styling */
+select {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 2px solid var(--accent-tertiary) !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  outline: none !important;
+}
+
+select:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5) !important;
+}
+
+select option {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  padding: 0.5rem !important;
+}
+
+/* Utility Classes */
+.hidden { display: none; }
+.block { display: block; }
+.inline { display: inline; }
+.inline-block { display: inline-block; }
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+.rounded { border-radius: 0.75rem; }
+.rounded-lg { border-radius: 1rem; }
+.rounded-xl { border-radius: 1.5rem; }
+
+.shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+.shadow-lg { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.8s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Glow effects for high visibility */
+.glow-green {
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+}
+
+.glow-orange {
+  box-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-secondary);
+}

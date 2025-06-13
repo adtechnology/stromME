@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stromME - Real-time Electricity Price Dashboard</title>
+  <meta name="description" content="Monitor real-time electricity prices and consumption data with stromME dashboard powered by Tibber API" />
+  
+  <!-- Preconnect to external domains -->
+  <link rel="preconnect" href="https://api.tibber.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+</head>
+<body>
+  <div id="app" class="container">
+    <!-- Loading spinner -->
+    <div id="loading" class="loading">
+      <div class="text-center">
+        <div class="spinner"></div>
+        <p class="text-xl font-bold text-accent mt-4">Loading stromME...</p>
+      </div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="main-app" class="hidden">
+      <!-- Compact Header -->
+      <header class="flex items-center justify-between mb-4 p-4 bg-secondary rounded-xl border-2 border-accent">
+        <div class="flex items-center">
+          <div class="text-4xl mr-4">⚡</div>
+          <div>
+            <h1 class="text-3xl font-black text-accent">stromME</h1>
+            <p class="text-lg text-accent-secondary font-bold">WALL COCKPIT</p>
+          </div>
+        </div>
+        <div id="connection-status" class="status-badge status-cheap">LIVE</div>
+      </header>
+
+      <!-- Main Content Grid - Everything in viewport -->
+      <main class="grid grid-cols-12 gap-4 flex-1">
+        <!-- Current Price - Takes center stage -->
+        <div class="col-span-6 price-main glow-green">
+          <div class="text-2xl font-bold text-accent-secondary mb-2">CURRENT PRICE</div>
+          <div class="price-display" id="current-price">--</div>
+          <div class="text-2xl font-bold text-secondary mb-2">EURO CENTS/kWh</div>
+          <div id="price-status" class="status-badge status-cheap">CHEAP</div>
+          <div class="text-lg text-muted mt-2" id="current-time">Loading...</div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="col-span-3 grid grid-rows-2 gap-4">
+          <!-- Today's Low Price -->
+          <div class="card glow-green text-center">
+            <h3 class="text-xl font-bold text-accent mb-2">TODAY'S LOW</h3>
+            <div class="price-secondary text-success" id="low-price">--</div>
+            <div class="text-sm text-muted" id="low-time">Loading...</div>
+          </div>
+
+          <!-- Today's High Price -->
+          <div class="card glow-orange text-center">
+            <h3 class="text-xl font-bold text-accent-secondary mb-2">TODAY'S HIGH</h3>
+            <div class="price-secondary text-error" id="high-price">--</div>
+            <div class="text-sm text-muted" id="high-time">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Consumption Progress - Enhanced -->
+        <div class="col-span-3 card glow-green">
+          <h3 class="text-2xl font-black text-accent text-center mb-4">TODAY'S USAGE</h3>
+          <div class="flex items-center justify-center mb-4">
+            <div class="progress-circle relative" style="width: 220px; height: 220px;">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="var(--bg-tertiary)" stroke-width="5" fill="none"/>
+                <circle id="progress-circle" cx="50" cy="50" r="40" stroke="var(--accent-primary)" stroke-width="5" fill="none"
+                        stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="125.6"
+                        style="filter: drop-shadow(0 0 15px var(--accent-primary));"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <div id="consumption-percentage" class="text-4xl font-black text-accent leading-none mb-1">--</div>
+                <div class="text-sm text-muted font-bold">of daily avg</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <div id="consumption-total" class="text-3xl font-black text-primary mb-1">-- kWh</div>
+            <div class="text-lg text-muted font-bold">Today's total</div>
+          </div>
+        </div>
+
+        <!-- Device Cost Calculator -->
+        <div class="col-span-8 card glow-cyan">
+          <h3 class="text-2xl font-bold text-accent-tertiary mb-4">DEVICE COST CALCULATOR</h3>
+          <div class="flex items-center gap-4">
+            <select id="device-selector" class="flex-1">
+              <option value="">Select a device...</option>
+              <option value="washing-machine">Washing Machine (2 kW)</option>
+              <option value="tumble-dryer">Tumble Dryer (3 kW)</option>
+              <option value="induction-cooker">Induction Cooker (2.5 kW)</option>
+              <option value="baking-oven">Baking Oven (3.5 kW)</option>
+              <option value="tv">TV (0.1 kW)</option>
+            </select>
+            <div class="text-center">
+              <div class="text-lg font-bold text-accent-tertiary mb-1">NEXT HOUR COST:</div>
+              <div id="device-cost" class="text-2xl font-black text-accent-tertiary">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 24h Consumption Chart -->
+        <div class="col-span-4 card glow-orange">
+          <h3 class="text-xl font-bold text-accent-secondary mb-4">24H CONSUMPTION</h3>
+          <div id="chart-view" class="chart-container" style="height: 120px;">
+            <canvas id="consumption-chart" class="w-full h-full"></canvas>
+          </div>
+        </div>
+      </main>
+
+      <!-- Compact Status Bar -->
+      <footer class="mt-4 text-center">
+        <div id="status-message" class="text-lg font-bold text-accent">
+          Last updated: <span id="last-updated" class="text-accent-secondary">--</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
