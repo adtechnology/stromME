@@ -1,8 +1,7 @@
-import type { 
-  TibberApiResponse, 
-  ViewerResponse, 
+import type {
+  TibberApiResponse,
+  ViewerResponse,
   HomeConsumptionResponse,
-  GetConsumptionVariables,
   TibberHome,
   ConsumptionNode,
   ApiError,
@@ -16,12 +15,10 @@ import { TokenService } from './tokenService';
  */
 export class TibberApiService {
   private baseUrl: string;
-  private token: string;
   private timeout: number;
 
   constructor() {
     this.baseUrl = API_CONFIG.baseUrl;
-    this.token = ''; // Token will be retrieved dynamically from TokenService
     this.timeout = API_CONFIG.timeout;
   }
 

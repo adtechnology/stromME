@@ -29,6 +29,6 @@
       "@/utils/*": ["src/utils/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "vite.config.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

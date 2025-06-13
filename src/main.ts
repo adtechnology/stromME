@@ -1,20 +1,17 @@
 import '../styles/main.css';
 import { tibberApi, TibberUtils } from './services/tibberApi';
-import { themeManager } from './services/locationService';
 import { TokenService } from './services/tokenService';
 import { TokenSetup } from './components/TokenSetup';
 import { TokenHelper } from './utils/tokenHelper';
 import { ApiTester } from './utils/apiTest';
 import { TibberDebug } from './utils/tibberDebug';
-import type { TibberHome, ConsumptionNode, Device, AppState } from './types/tibber';
+import type { AppState } from './types/tibber';
 import { DEVICES, UPDATE_INTERVALS } from './utils/constants';
 import {
-  formatPrice,
   formatPriceShort,
   formatConsumption,
   formatCost,
   formatTime,
-  formatPercentage,
   calculateDeviceCost,
   formatRelativeTime
 } from './utils/formatters';

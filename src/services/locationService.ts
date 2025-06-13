@@ -20,7 +20,6 @@ export class LocationService {
     
     // Convert to radians
     const lat = latitude * Math.PI / 180;
-    const lng = longitude * Math.PI / 180;
     
     // Day of year
     const dayOfYear = this.getDayOfYear(date);
