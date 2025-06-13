@@ -1,6 +1,9 @@
 import '../styles/main.css';
 import { tibberApi, TibberUtils } from './services/tibberApi';
 import { themeManager } from './services/locationService';
+import { TokenService } from './services/tokenService';
+import { TokenSetup } from './components/TokenSetup';
+import { TokenHelper } from './utils/tokenHelper';
 import { ApiTester } from './utils/apiTest';
 import { TibberDebug } from './utils/tibberDebug';
 import type { TibberHome, ConsumptionNode, Device, AppState } from './types/tibber';
@@ -39,7 +42,41 @@ class StromMEApp {
   constructor() {
     this.initializeElements();
     this.setupEventListeners();
-    this.initializeApp();
+    this.checkTokenAndInitialize();
+  }
+
+  /**
+   * Check for token and initialize app or show setup
+   */
+  private checkTokenAndInitialize(): void {
+    if (TokenService.hasValidToken()) {
+      // Token exists, initialize the main app
+      this.initializeApp();
+    } else {
+      // No token, show setup UI
+      this.showTokenSetup();
+    }
+  }
+
+  /**
+   * Show token setup interface
+   */
+  private showTokenSetup(): void {
+    const appContainer = document.body;
+    const tokenSetup = new TokenSetup(appContainer, () => {
+      // Token configured, reload the page to start the main app
+      window.location.reload();
+    });
+    
+    // Hide the main app content and show token setup
+    if (this.elements.loading) {
+      this.elements.loading.classList.add('hidden');
+    }
+    if (this.elements.mainApp) {
+      this.elements.mainApp.classList.add('hidden');
+    }
+    
+    tokenSetup.render();
   }
 
   /**
@@ -445,8 +482,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Make debug tools available globally
   (window as any).tibberDebug = TibberDebug;
   (window as any).apiTester = ApiTester;
+  (window as any).tokenHelper = TokenHelper;
   
   console.log('🔧 Debug tools loaded:');
+  console.log('- Run tokenHelper.help() for token management commands');
   console.log('- Run tibberDebug.testAll() to test your Tibber API');
   console.log('- Run apiTester.runTests() for basic API tests');
 });

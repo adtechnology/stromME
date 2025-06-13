@@ -2,9 +2,13 @@
 
 A modern, wall-mounted cockpit display for monitoring real-time electricity prices and consumption data using the Tibber API. Designed for high visibility with large fonts, high-contrast colors, and a single-viewport layout perfect for wall displays.
 
-![stromME Dashboard](https://img.shields.io/badge/Status-Live-brightgreen) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)
+![stromME Dashboard](https://img.shields.io/badge/Status-Live-brightgreen) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white) ![Security](https://img.shields.io/badge/Security-First-green)
 
-## 🚀 Features
+## 🔒 Security Features
+
+**Secure Token Management**: Your Tibber API token is stored securely in your browser's localStorage only. The token is never sent to any server except Tibber's official API and is never exposed in the deployed code.
+
+## � Features
 
 ### 📊 Real-time Price Monitoring
 - **Current electricity price** in Euro cents/kWh

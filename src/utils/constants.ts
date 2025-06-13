@@ -3,7 +3,7 @@ import type { Device, ApiConfig, LocationData } from '../types/tibber';
 // API Configuration
 export const API_CONFIG: ApiConfig = {
   baseUrl: 'https://api.tibber.com/v1-beta/gql',
-  token: 'DB2730D2CC924F026F7392EC8548B099338A0996A806A77B0F213B2CC08B39FB-1',
+  token: '', // Token will be provided at runtime via tokenService
   timeout: 10000
 };
 

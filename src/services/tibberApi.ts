@@ -9,6 +9,7 @@ import type {
   PriceLevel
 } from '../types/tibber';
 import { API_CONFIG, GRAPHQL_QUERIES, ERROR_MESSAGES, DEV_CONFIG } from '../utils/constants';
+import { TokenService } from './tokenService';
 
 /**
  * Tibber API Service Class
@@ -20,7 +21,7 @@ export class TibberApiService {
 
   constructor() {
     this.baseUrl = API_CONFIG.baseUrl;
-    this.token = API_CONFIG.token;
+    this.token = ''; // Token will be retrieved dynamically from TokenService
     this.timeout = API_CONFIG.timeout;
   }
 
@@ -28,7 +29,7 @@ export class TibberApiService {
    * Check if API key is configured
    */
   private isApiKeyConfigured(): boolean {
-    return this.token !== 'YOUR_TIBBER_API_KEY_HERE' && this.token.length > 10;
+    return TokenService.hasValidToken();
   }
 
   /**
@@ -160,6 +161,9 @@ export class TibberApiService {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
+      // Get token dynamically from TokenService
+      const token = TokenService.getTokenForApi();
+      
       const requestBody = {
         query: query.trim(),
         variables: variables || {}
@@ -170,7 +174,7 @@ export class TibberApiService {
           url: this.baseUrl,
           query: query.trim(),
           variables: variables || {},
-          hasToken: !!this.token && this.token.length > 10
+          hasToken: !!token && token.length > 10
         });
       }
 
@@ -178,7 +182,7 @@ export class TibberApiService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(requestBody),
         signal: controller.signal
