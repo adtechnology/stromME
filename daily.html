@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>stromME - Daily Price Cockpit</title>
+    <link rel="stylesheet" href="https://use.typekit.net/lll2bzr.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- Chart.js for professional charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        .daily-cockpit {
+            height: 100vh;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            font-family: var(--font-primary);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .daily-cockpit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+
+        .daily-header {
+            padding: 1rem 2rem;
+            background: rgba(0, 255, 136, 0.1);
+            border-bottom: 2px solid #00ff88;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .daily-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .daily-subtitle {
+            font-size: 1.2rem;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chart-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+        }
+
+        .price-chart {
+            width: 95%;
+            height: 65vh;
+            background: linear-gradient(145deg, rgba(0, 20, 40, 0.8), rgba(0, 40, 60, 0.6));
+            border: 2px solid transparent;
+            border-radius: 25px;
+            box-shadow:
+                0 0 60px rgba(0, 255, 136, 0.2),
+                inset 0 0 40px rgba(0, 212, 255, 0.1),
+                0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .price-chart::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg,
+                rgba(0, 255, 136, 0.1) 0%,
+                transparent 25%,
+                transparent 75%,
+                rgba(0, 212, 255, 0.1) 100%);
+            border-radius: 23px;
+            pointer-events: none;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 17px;
+            background: transparent;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.6), rgba(0, 40, 60, 0.4));
+            border-radius: 20px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .legend-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            border: 3px solid #ffffff;
+        }
+
+        .legend-dot.fixed {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .legend-dot.dynamic {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .legend-dot.current-time {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            border: 3px dashed #ffffff;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .price-info {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            border: 2px solid #00ff88;
+            font-size: 1.2rem;
+        }
+
+        .current-price {
+            color: #00ff88;
+            font-weight: 900;
+            font-size: 1.5rem;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-text {
+            font-size: 2rem;
+            color: #00d4ff;
+            font-weight: 700;
+            margin-top: 2rem;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 212, 255, 0.3);
+            border-top: 4px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(255, 107, 53, 0.2);
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 2rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Lade Preisdaten...</div>
+    </div>
+
+    <!-- Main Daily Cockpit -->
+    <div id="dailyCockpit" class="daily-cockpit hidden">
+        <!-- Header -->
+        <header class="daily-header">
+            <div>
+                <h1 class="daily-title">stromME</h1>
+                <p class="daily-subtitle">DAILY PRICE COCKPIT</p>
+            </div>
+            <div class="price-info">
+                <div>Aktueller Preis:</div>
+                <div id="currentPrice" class="current-price">-- €/kWh</div>
+            </div>
+        </header>
+
+        <!-- Chart Container -->
+        <main class="chart-container">
+            <h2 class="chart-title">Dynamischer Tarif</h2>
+            
+            <div class="price-chart">
+                <canvas id="priceChart" class="chart-canvas" width="800" height="400"></canvas>
+            </div>
+
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-dot fixed"></div>
+                    <span>Fixpreis</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot dynamic"></div>
+                    <span>Dynamischer Tarif</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot current-time"></div>
+                    <span>Aktuelle Zeit</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorDisplay" class="error-message hidden"></div>
+
+    <script type="module">
+        import { tibberApi } from './src/services/tibberApi.ts';
+
+        class DailyPriceCockpit {
+            constructor() {
+                this.canvas = document.getElementById('priceChart');
+                this.chart = null;
+                this.priceData = [];
+                this.currentPrice = 0;
+                this.fixedPrice = 0.30; // Example fixed price for comparison
+                
+                this.init();
+            }
+
+            async init() {
+                try {
+                    console.log('Initializing daily cockpit with Chart.js...');
+                    await this.loadPriceData();
+                    console.log('Price data loaded, creating chart...');
+                    this.createChart();
+                    console.log('Chart created, hiding loading screen...');
+                    this.hideLoading();
+                } catch (error) {
+                    console.error('Error initializing daily cockpit:', error);
+                    this.showError('Fehler beim Laden der Preisdaten: ' + error.message);
+                }
+            }
+
+            async loadPriceData() {
+                try {
+                    console.log('Loading price data from Tibber API...');
+                    const home = await tibberApi.getFirstHome();
+                    console.log('Got home data:', home);
+                    
+                    if (!home || !home.currentSubscription?.priceInfo) {
+                        throw new Error('Keine Preisdaten verfügbar');
+                    }
+
+                    const priceInfo = home.currentSubscription.priceInfo;
+                    console.log('Price info:', priceInfo);
+                    
+                    this.priceData = priceInfo.today || [];
+                    this.currentPrice = priceInfo.current?.total || 0;
+
+                    console.log('Loaded price data:', this.priceData.length, 'hours');
+                    console.log('Current price:', this.currentPrice);
+                    console.log('Today prices sample:', this.priceData.slice(0, 3));
+
+                    // Update current price display
+                    document.getElementById('currentPrice').textContent =
+                        `${(this.currentPrice * 100).toFixed(2)} ct/kWh`;
+
+                } catch (error) {
+                    console.error('Error loading price data:', error);
+                    throw error;
+                }
+            }
+
+            createChart() {
+                if (this.priceData.length === 0) {
+                    this.showError('Keine Preisdaten verfügbar');
+                    return;
+                }
+
+                // Prepare data for Chart.js
+                const chartData = this.prepareChartData();
+                const currentHour = new Date().getHours();
+
+                // Destroy existing chart if it exists
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+
+                // Create Chart.js configuration
+                const config = {
+                    type: 'line',
+                    data: chartData,
+                        options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        devicePixelRatio: 2, // High resolution
+                        layout: {
+                            padding: {
+                                left: 20,
+                                right: 20,
+                                top: 20,
+                                bottom: 30
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false // We have custom legend
+                            },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(0, 20, 40, 0.95)',
+                                titleColor: '#00ff88',
+                                bodyColor: '#ffffff',
+                                borderColor: '#00d4ff',
+                                borderWidth: 3,
+                                cornerRadius: 15,
+                                displayColors: false,
+                                titleFont: {
+                                    family: 'din-2014, DIN 2014, Inter',
+                                    size: 18,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    family: 'din-2014, DIN 2014, Inter',
+                                    size: 16,
+                                    weight: '600'
+                                },
+                                padding: 15,
+                                caretSize: 8,
+                                caretPadding: 10,
+                                titleSpacing: 8,
+                                bodySpacing: 6,
+                                footerSpacing: 8,
+                                callbacks: {
+                                    title: (context) => {
+                                        const hour = context[0].parsed.x;
+                                        return `⏰ ${hour.toString().padStart(2, '0')}:00 - ${(hour + 1).toString().padStart(2, '0')}:00 Uhr`;
+                                    },
+                                    label: (context) => {
+                                        const price = context.parsed.y;
+                                        const level = this.priceData[context.dataIndex]?.level || 'NORMAL';
+                                        const levelText = {
+                                            'CHEAP': '🟢 Günstig',
+                                            'NORMAL': '🔵 Normal',
+                                            'EXPENSIVE': '🔴 Teuer'
+                                        }[level] || '🔵 Normal';
+                                        return [
+                                            `💰 Preis: ${(price * 100).toFixed(2)} ct/kWh`,
+                                            `📊 Level: ${levelText}`,
+                                            `💡 Fixpreis: ${(this.fixedPrice * 100).toFixed(2)} ct/kWh`
+                                        ];
+                                    },
+                                    footer: (context) => {
+                                        const price = context[0].parsed.y;
+                                        const savings = ((this.fixedPrice - price) * 100).toFixed(2);
+                                        if (savings > 0) {
+                                            return `💚 Ersparnis: ${savings} ct/kWh`;
+                                        } else if (savings < 0) {
+                                            return `💸 Mehrkosten: ${Math.abs(savings)} ct/kWh`;
+                                        }
+                                        return '⚖️ Gleicher Preis';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                min: 0,
+                                max: 24,
+                                ticks: {
+                                    stepSize: 2,
+                                    callback: (value) => `${value.toString().padStart(2, '0')}:00`,
+                                    color: '#00d4ff',
+                                    font: {
+                                        family: 'din-2014, DIN 2014, Inter',
+                                        size: 24,
+                                        weight: 'bold'
+                                    },
+                                    padding: 15
+                                },
+                                grid: {
+                                    color: (context) => {
+                                        if (context.tick.value % 6 === 0) {
+                                            return 'rgba(0, 212, 255, 0.3)';
+                                        }
+                                        return 'rgba(255, 255, 255, 0.08)';
+                                    },
+                                    lineWidth: (context) => {
+                                        if (context.tick.value % 6 === 0) {
+                                            return 2;
+                                        }
+                                        return 1;
+                                    }
+                                },
+                                border: {
+                                    color: '#00d4ff',
+                                    width: 3
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Uhrzeit',
+                                    color: '#00d4ff',
+                                    font: {
+                                        family: 'din-2014, DIN 2014, Inter',
+                                        size: 28,
+                                        weight: 'bold'
+                                    },
+                                    padding: 20
+                                }
+                            },
+                            y: {
+                                min: 0,
+                                max: 0.60,
+                                ticks: {
+                                    stepSize: 0.10,
+                                    callback: (value) => `${(value * 100).toFixed(0)} ct`,
+                                    color: '#00ff88',
+                                    font: {
+                                        family: 'din-2014, DIN 2014, Inter',
+                                        size: 24,
+                                        weight: 'bold'
+                                    },
+                                    padding: 15
+                                },
+                                grid: {
+                                    color: 'rgba(0, 255, 136, 0.15)',
+                                    lineWidth: 1
+                                },
+                                border: {
+                                    color: '#00ff88',
+                                    width: 3
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Preis (ct/kWh)',
+                                    color: '#00ff88',
+                                    font: {
+                                        family: 'din-2014, DIN 2014, Inter',
+                                        size: 28,
+                                        weight: 'bold'
+                                    },
+                                    padding: 20
+                                }
+                            }
+                        },
+                        elements: {
+                            line: {
+                                tension: 0, // Step chart
+                                stepped: true
+                            },
+                            point: {
+                                radius: 6,
+                                hoverRadius: 8,
+                                borderWidth: 2,
+                                hoverBorderWidth: 3
+                            }
+                        },
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeInOutCubic',
+                            delay: (context) => {
+                                let delay = 0;
+                                if (context.type === 'data' && context.mode === 'default') {
+                                    delay = context.dataIndex * 100;
+                                }
+                                return delay;
+                            }
+                        },
+                        animations: {
+                            y: {
+                                duration: 2000,
+                                easing: 'easeInOutBounce',
+                                from: (ctx) => {
+                                    if (ctx.type === 'data') {
+                                        return ctx.chart.scales.y.getPixelForValue(0);
+                                    }
+                                }
+                            },
+                            x: {
+                                duration: 1500,
+                                easing: 'easeInOutQuart'
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                };
+
+                // Create the chart
+                this.chart = new Chart(this.canvas, config);
+                
+                console.log('Chart.js chart created successfully');
+            }
+
+            prepareChartData() {
+                // Dynamic price data
+                const dynamicData = this.priceData.map(item => {
+                    const hour = new Date(item.startsAt).getHours();
+                    return {
+                        x: hour,
+                        y: item.total
+                    };
+                });
+
+                // Add the last data point at hour 24 to complete the step chart
+                if (dynamicData.length > 0) {
+                    const lastDataPoint = dynamicData[dynamicData.length - 1];
+                    dynamicData.push({
+                        x: 24,
+                        y: lastDataPoint.y
+                    });
+                }
+
+                // Fixed price line data
+                const fixedData = [
+                    { x: 0, y: this.fixedPrice },
+                    { x: 24, y: this.fixedPrice }
+                ];
+
+                // Point colors based on price level
+                const pointColors = this.priceData.map(item => {
+                    switch (item.level) {
+                        case 'CHEAP': return '#00ff88';
+                        case 'EXPENSIVE': return '#ff6b35';
+                        default: return '#00d4ff';
+                    }
+                });
+
+                // Add color for the additional point at hour 24
+                if (pointColors.length > 0) {
+                    pointColors.push(pointColors[pointColors.length - 1]);
+                }
+
+                return {
+                    datasets: [
+                        {
+                            label: 'Dynamischer Tarif',
+                            data: dynamicData,
+                            borderColor: '#00d4ff',
+                            backgroundColor: (context) => {
+                                const chart = context.chart;
+                                const {ctx, chartArea} = chart;
+                                if (!chartArea) return null;
+                                
+                                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                gradient.addColorStop(0, 'rgba(0, 212, 255, 0.4)');
+                                gradient.addColorStop(0.5, 'rgba(0, 255, 136, 0.2)');
+                                gradient.addColorStop(1, 'rgba(0, 212, 255, 0.1)');
+                                return gradient;
+                            },
+                            borderWidth: 5,
+                            fill: true,
+                            pointBackgroundColor: pointColors,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 3,
+                            pointRadius: 8,
+                            pointHoverRadius: 12,
+                            pointHoverBorderWidth: 4,
+                            stepped: true,
+                            tension: 0,
+                            shadowColor: 'rgba(0, 212, 255, 0.5)',
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowOffsetY: 5
+                        },
+                        {
+                            label: 'Fixpreis',
+                            data: fixedData,
+                            borderColor: '#ff6b35',
+                            backgroundColor: 'transparent',
+                            borderWidth: 4,
+                            borderDash: [15, 8],
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            shadowColor: 'rgba(255, 107, 53, 0.3)',
+                            shadowBlur: 8
+                        },
+                        {
+                            label: 'Aktuelle Zeit',
+                            data: [
+                                { x: new Date().getHours(), y: Math.min(...this.priceData.map(p => p.total)) * 0.85 },
+                                { x: new Date().getHours(), y: Math.max(...this.priceData.map(p => p.total)) * 1.15 }
+                            ],
+                            borderColor: '#00ff88',
+                            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            borderWidth: 4,
+                            borderDash: [8, 4],
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            shadowColor: 'rgba(0, 255, 136, 0.4)',
+                            shadowBlur: 12
+                        }
+                    ]
+                };
+            }
+
+            hideLoading() {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('dailyCockpit').classList.remove('hidden');
+            }
+
+            showError(message) {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                const errorDisplay = document.getElementById('errorDisplay');
+                errorDisplay.textContent = message;
+                errorDisplay.classList.remove('hidden');
+            }
+        }
+
+        // Initialize the daily price cockpit
+        new DailyPriceCockpit();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Reinitialize on resize to maintain proper canvas scaling
+            setTimeout(() => {
+                new DailyPriceCockpit();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
