@@ -28,7 +28,7 @@ export default {
         error: '#EF4444'
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif']
+        sans: ['din-2014', 'DIN 2014', 'Inter', 'system-ui', 'sans-serif']
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

@@ -4,6 +4,9 @@
 
 /* High-Contrast Wall Display Theme */
 :root {
+  /* Font Variables */
+  --font-primary: 'din-2014', 'DIN 2014', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
   --bg-primary: #000000;
   --bg-secondary: #111111;
   --bg-tertiary: #1a1a1a;
@@ -35,15 +38,22 @@
   box-sizing: border-box;
 }
 
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-primary);
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.4;
   overflow-x: hidden;
   font-weight: 600; /* Bolder text for wall display */
+  height: 100%;
 }
 
 /* Container - Full width for wall display */
